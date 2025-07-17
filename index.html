@@ -1,106 +1,113 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Code 產生器</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>圖片網址轉 QR Code</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #eef6ff;
+      background-color: #f0f6ff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+      padding: 50px 20px;
     }
 
     h1 {
       color: #333;
-      margin-bottom: 20px;
     }
 
-    .input-group {
+    #form {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 10px;
-      margin-bottom: 20px;
     }
 
-    input {
+    input[type="text"] {
       padding: 10px;
-      width: 300px;
+      font-size: 16px;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
+      width: 100%;
     }
 
     button {
-      padding: 10px 20px;
-      background-color: #1d72b8;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
 
     button:hover {
-      background-color: #155d8b;
+      background-color: #0056b3;
     }
 
     #qrcode {
-      margin-top: 20px;
+      margin-top: 30px;
+      display: none;
+      text-align: center;
     }
 
-    .error {
+    #error {
       color: red;
+      display: none;
+      margin-top: -5px;
       font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1>QR Code 產生器</h1>
-
-  <div class="input-group">
-    <input type="text" id="text" placeholder="輸入文字或網址" />
-    <input type="text" id="image-url" placeholder="或貼上圖片網址" />
-    <div id="error" class="error"></div>
+  <h1>圖片網址轉 QR Code</h1>
+  <div id="form">
+    <input type="text" id="urlInput" placeholder="請輸入圖片網址（https://...）" />
+    <span id="error">請先輸入網址再產生 QR Code</span>
     <button onclick="generateQRCode()">產生 QR Code</button>
   </div>
 
   <div id="qrcode"></div>
 
+  <!-- qrcode.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    const textInput = document.getElementById('text');
-    const imageInput = document.getElementById('image-url');
-    const errorDiv = document.getElementById('error');
+    const urlInput = document.getElementById("urlInput");
+    const errorText = document.getElementById("error");
+    const qrCodeContainer = document.getElementById("qrcode");
+
+    urlInput.addEventListener("input", () => {
+      errorText.style.display = "none";
+    });
 
     function generateQRCode() {
-      const textValue = textInput.value.trim();
-      const imageValue = imageInput.value.trim();
-      const targetValue = imageValue || textValue;
+      const url = urlInput.value.trim();
 
-      if (!targetValue) {
-        errorDiv.textContent = '請輸入文字、網址或圖片網址';
+      if (!url) {
+        errorText.style.display = "block";
+        qrCodeContainer.style.display = "none";
         return;
       }
 
-      errorDiv.textContent = '';
-      const qrCodeDiv = document.getElementById('qrcode');
-      qrCodeDiv.innerHTML = '';
-      QRCode.toCanvas(targetValue, { width: 256 }, function (err, canvas) {
+      qrCodeContainer.innerHTML = ""; // 清除舊的 QR Code
+      qrCodeContainer.style.display = "block";
+
+      QRCode.toCanvas(url, { width: 256 }, function (err, canvas) {
         if (err) {
           console.error(err);
-          errorDiv.textContent = 'QR Code 產生失敗';
+          errorText.innerText = "產生 QR Code 時發生錯誤";
+          errorText.style.display = "block";
           return;
         }
-        qrCodeDiv.appendChild(canvas);
+        qrCodeContainer.appendChild(canvas);
       });
     }
-
-    textInput.addEventListener('input', () => errorDiv.textContent = '');
-    imageInput.addEventListener('input', () => errorDiv.textContent = '');
   </script>
 </body>
 </html>
+
